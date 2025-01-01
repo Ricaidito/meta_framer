@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont, ExifTags
 import piexif
+import os
 
 
 def annotate_image(
@@ -113,8 +114,54 @@ def annotate_image(
     print(f"Framed image saved to {output_path}")
 
 
+def annotate_images(
+    folder_path,
+    border_width=100,
+    frame_color="white",
+    text_color="black",
+    second_line_color="#7a7a7a",
+    font_path="./fonts/Roboto-Regular.ttf",
+    bold_font_path="./fonts/Roboto-Bold.ttf",
+    font_size=132,
+    line_spacing=72,
+    text_padding=150,
+    long_edge_size=2000,
+):
+    try:
+        for file_name in os.listdir(folder_path):
+            input_path = os.path.join(folder_path, file_name)
+
+            if not (
+                file_name.lower().endswith(".jpg")
+                or file_name.lower().endswith(".jpeg")
+            ):
+                print(f"Skipping non-JPEG file: {file_name}")
+                continue
+
+            output_path = os.path.join(
+                folder_path, f"{os.path.splitext(file_name)[0]}F.jpg"
+            )
+
+            annotate_image(
+                input_path,
+                output_path,
+                border_width=border_width,
+                frame_color=frame_color,
+                text_color=text_color,
+                second_line_color=second_line_color,
+                font_path=font_path,
+                bold_font_path=bold_font_path,
+                font_size=font_size,
+                line_spacing=line_spacing,
+                text_padding=text_padding,
+                long_edge_size=long_edge_size,
+            )
+    except Exception as e:
+        print(f"Error processing folder {folder_path}: {e}")
+
+
 if __name__ == "__main__":
     annotate_image(
         image_path="./t1.jpg",
-        output_path="./output.jpg",
+        output_path="./t1F.jpg",
     )
