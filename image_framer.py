@@ -13,10 +13,15 @@ def annotate_image(
     bold_font_path="./fonts/Roboto-Bold.ttf",
     font_size=132,
     line_spacing=72,  # Spacing between the first and second lines
-    text_padding=100,  # Spacing between the image and the text
+    text_padding=150,  # Spacing between the image and the text
     long_edge_size=2000,  # Resize long edge to this dimension
 ):
     img = Image.open(image_path)
+
+    # if the image is not jpeg or jpg, do not annotate
+    if img.format != "JPEG" and img.format != "JPG":
+        print("ERROR: Image is not JPEG or JPG")
+        return
 
     # Handle rotations when needed
     try:
@@ -43,9 +48,6 @@ def annotate_image(
     focal_length = exif_data["Exif"][piexif.ExifIFD.FocalLength]
     aperture = exif_data["Exif"][piexif.ExifIFD.FNumber]
 
-    if isinstance(focal_length, tuple):
-        focal_length = focal_length[0]
-
     # Frame math
     new_width = img.width + 2 * border_width
     framed_height = img.height + 2 * border_width + text_padding
@@ -57,7 +59,7 @@ def annotate_image(
 
     line1_part1 = "Shot on "
     line1_part2 = model  # Bold part
-    line2 = f"{focal_length}mm   f/{aperture[0]/aperture[1]:.1f}   {shutter_speed[0]}/{shutter_speed[1]}s   ISO{iso}"
+    line2 = f"{(focal_length[0] // focal_length[1])}mm   f/{aperture[0]/aperture[1]:.1f}   {shutter_speed[0]}/{shutter_speed[1]}s   ISO{iso}"
 
     # Calculate dimensions
     draw = ImageDraw.Draw(framed_image)
@@ -113,13 +115,6 @@ def annotate_image(
 
 if __name__ == "__main__":
     annotate_image(
-        "./IMG_0025.JPG",
-        "./output.JPG",
-        font_path="./fonts/Roboto-Regular.ttf",
-        bold_font_path="./fonts/Roboto-Bold.ttf",
-        second_line_color="#7a7a7a",
-        line_spacing=72,
-        text_padding=150,
-        long_edge_size=2000,
+        image_path="./t1.jpg",
+        output_path="./output.jpg",
     )
-    print("Done")
